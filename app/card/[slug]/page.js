@@ -613,9 +613,13 @@ export default function PublicCardPage() {
 
   return (
     <main
-      className={
-        styles.page
-      }
+      className={`${styles.page} ${
+        card.theme === 'gold'
+          ? styles.goldTheme
+          : card.theme === 'ocean'
+          ? styles.oceanTheme
+          : styles.standardTheme
+      }`}
     >
       <section
         className={
@@ -1186,3 +1190,4 @@ function PortfolioItem({
     </article>
   );
 }
+

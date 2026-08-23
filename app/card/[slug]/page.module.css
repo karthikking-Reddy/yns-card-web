@@ -472,3 +472,258 @@
       repeat(2, minmax(0, 1fr));
   }
 }
+
+/* =========================================================
+   YNS CARD THEMES
+   ========================================================= */
+
+.standardTheme {
+  --yns-accent: #111827;
+  --yns-soft: #f3f4f6;
+}
+
+/* -------------------------
+   YNS GOLD
+   ------------------------- */
+
+.goldTheme {
+  background:
+    radial-gradient(
+      circle at top,
+      #3a2c11 0%,
+      #17130c 38%,
+      #090909 100%
+    );
+}
+
+.goldTheme .topBrand strong {
+  color: #d7af57;
+}
+
+.goldTheme .topBrand span {
+  color: #c9b88f;
+}
+
+.goldTheme .shareButton {
+  background: #d7af57;
+  color: #17130c;
+}
+
+.goldTheme .profileCard {
+  background:
+    linear-gradient(
+      145deg,
+      #1c1810,
+      #0d0d0d
+    );
+  color: #ffffff;
+  border: 1px solid #5b4924;
+}
+
+.goldTheme .profileCard h1,
+.goldTheme .profileCard h2 {
+  color: #ffffff;
+}
+
+.goldTheme .designation,
+.goldTheme .bio {
+  color: #c8c1b3;
+}
+
+.goldTheme .tagline {
+  color: #d7af57;
+}
+
+.goldTheme .avatarFallback {
+  background: #d7af57;
+  color: #111111;
+}
+
+.goldTheme .action {
+  background: #282216;
+  color: #f8f2e7;
+}
+
+.goldTheme .actionIcon {
+  background: #d7af57;
+  color: #111111;
+}
+
+.goldTheme .section {
+  background: #171510;
+  color: #ffffff;
+  border: 1px solid #3e3520;
+}
+
+.goldTheme .sectionHeading span {
+  color: #d7af57;
+}
+
+.goldTheme .sectionHeading strong,
+.goldTheme .service h3,
+.goldTheme .portfolioItem h4 {
+  color: #ffffff;
+}
+
+.goldTheme .service,
+.goldTheme .portfolioItem {
+  background: #242019;
+}
+
+.goldTheme .serviceMark {
+  background: #d7af57;
+  color: #111111;
+}
+
+.goldTheme .service p,
+.goldTheme .portfolioItem span,
+.goldTheme .portfolioItem p {
+  color: #bdb5a6;
+}
+
+.goldTheme .form input,
+.goldTheme .form textarea {
+  background: #221f19;
+  border-color: #51472f;
+  color: #ffffff;
+}
+
+.goldTheme .form label {
+  color: #e7ddc7;
+}
+
+.goldTheme .submitButton {
+  background: #d7af57;
+  color: #111111;
+}
+
+.goldTheme .formHelp {
+  color: #aaa18e;
+}
+
+.goldTheme .footer strong {
+  color: #d7af57;
+}
+
+/* -------------------------
+   OCEAN
+   ------------------------- */
+
+.oceanTheme {
+  background:
+    radial-gradient(
+      circle at top,
+      #0c4a6e 0%,
+      #082f49 35%,
+      #071521 100%
+    );
+}
+
+.oceanTheme .topBrand strong {
+  color: #7dd3fc;
+}
+
+.oceanTheme .topBrand span {
+  color: #bae6fd;
+}
+
+.oceanTheme .shareButton {
+  background: #38bdf8;
+  color: #082f49;
+}
+
+.oceanTheme .profileCard {
+  background:
+    linear-gradient(
+      145deg,
+      #0c4a6e,
+      #082f49
+    );
+  color: #ffffff;
+  border: 1px solid #0369a1;
+}
+
+.oceanTheme .profileCard h1,
+.oceanTheme .profileCard h2 {
+  color: #ffffff;
+}
+
+.oceanTheme .designation,
+.oceanTheme .bio {
+  color: #bae6fd;
+}
+
+.oceanTheme .tagline {
+  color: #7dd3fc;
+}
+
+.oceanTheme .avatarFallback {
+  background: #38bdf8;
+  color: #082f49;
+}
+
+.oceanTheme .action {
+  background: #075985;
+  color: #ffffff;
+}
+
+.oceanTheme .actionIcon {
+  background: #38bdf8;
+  color: #082f49;
+}
+
+.oceanTheme .section {
+  background: #0c3b58;
+  color: #ffffff;
+  border: 1px solid #075985;
+}
+
+.oceanTheme .sectionHeading span {
+  color: #7dd3fc;
+}
+
+.oceanTheme .sectionHeading strong,
+.oceanTheme .service h3,
+.oceanTheme .portfolioItem h4 {
+  color: #ffffff;
+}
+
+.oceanTheme .service,
+.oceanTheme .portfolioItem {
+  background: #075985;
+}
+
+.oceanTheme .serviceMark {
+  background: #38bdf8;
+  color: #082f49;
+}
+
+.oceanTheme .service p,
+.oceanTheme .portfolioItem span,
+.oceanTheme .portfolioItem p {
+  color: #bae6fd;
+}
+
+.oceanTheme .form input,
+.oceanTheme .form textarea {
+  background: #082f49;
+  border-color: #0ea5e9;
+  color: #ffffff;
+}
+
+.oceanTheme .form label {
+  color: #e0f2fe;
+}
+
+.oceanTheme .submitButton {
+  background: #38bdf8;
+  color: #082f49;
+}
+
+.oceanTheme .formHelp {
+  color: #bae6fd;
+}
+
+.oceanTheme .footer strong {
+  color: #7dd3fc;
+}
