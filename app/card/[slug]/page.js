@@ -14,6 +14,7 @@ import { supabase } from '../../../lib/supabase';
 
 import styles from './page.module.css';
 
+
 export default function PublicCardPage() {
   const params = useParams();
 
@@ -29,6 +30,9 @@ export default function PublicCardPage() {
     useState(null);
 
   const [links, setLinks] =
+    useState([]);
+
+  const [blocks, setBlocks] =
     useState([]);
 
   const [services, setServices] =
@@ -55,6 +59,7 @@ export default function PublicCardPage() {
       requirement: '',
     });
 
+
   useEffect(() => {
     if (!slug) {
       return;
@@ -62,6 +67,7 @@ export default function PublicCardPage() {
 
     loadCard();
   }, [slug]);
+
 
   async function loadCard() {
     setLoading(true);
@@ -87,6 +93,7 @@ export default function PublicCardPage() {
         setError(
           'This digital card is not available.'
         );
+
         return;
       }
 
@@ -94,39 +101,89 @@ export default function PublicCardPage() {
 
       const [
         linksResult,
+        blocksResult,
         servicesResult,
         portfolioResult,
       ] = await Promise.all([
         supabase
           .from('card_links')
           .select('*')
-          .eq('card_id', cardData.id)
-          .eq('is_active', true)
-          .order('sort_order', {
-            ascending: true,
-          }),
+          .eq(
+            'card_id',
+            cardData.id
+          )
+          .eq(
+            'is_active',
+            true
+          )
+          .order(
+            'sort_order',
+            {
+              ascending: true,
+            }
+          ),
+
+        supabase
+          .from('card_blocks')
+          .select('*')
+          .eq(
+            'card_id',
+            cardData.id
+          )
+          .eq(
+            'is_active',
+            true
+          )
+          .order(
+            'sort_order',
+            {
+              ascending: true,
+            }
+          ),
 
         supabase
           .from('card_services')
           .select('*')
-          .eq('card_id', cardData.id)
-          .eq('is_active', true)
-          .order('sort_order', {
-            ascending: true,
-          }),
+          .eq(
+            'card_id',
+            cardData.id
+          )
+          .eq(
+            'is_active',
+            true
+          )
+          .order(
+            'sort_order',
+            {
+              ascending: true,
+            }
+          ),
 
         supabase
           .from('portfolio_items')
           .select('*')
-          .eq('card_id', cardData.id)
-          .eq('is_active', true)
-          .order('sort_order', {
-            ascending: true,
-          }),
+          .eq(
+            'card_id',
+            cardData.id
+          )
+          .eq(
+            'is_active',
+            true
+          )
+          .order(
+            'sort_order',
+            {
+              ascending: true,
+            }
+          ),
       ]);
 
       if (linksResult.error) {
         throw linksResult.error;
+      }
+
+      if (blocksResult.error) {
+        throw blocksResult.error;
       }
 
       if (servicesResult.error) {
@@ -141,6 +198,10 @@ export default function PublicCardPage() {
         linksResult.data || []
       );
 
+      setBlocks(
+        blocksResult.data || []
+      );
+
       setServices(
         servicesResult.data || []
       );
@@ -149,7 +210,9 @@ export default function PublicCardPage() {
         portfolioResult.data || []
       );
 
-      await recordView(cardData);
+      await recordView(
+        cardData
+      );
     } catch (loadError) {
       console.error(
         'Public card load error:',
@@ -165,9 +228,11 @@ export default function PublicCardPage() {
     }
   }
 
+
   function getVisitorToken() {
     if (
-      typeof window === 'undefined'
+      typeof window ===
+      'undefined'
     ) {
       return null;
     }
@@ -176,7 +241,9 @@ export default function PublicCardPage() {
       'yns_card_visitor_token';
 
     let token =
-      localStorage.getItem(key);
+      localStorage.getItem(
+        key
+      );
 
     if (!token) {
       token =
@@ -195,11 +262,13 @@ export default function PublicCardPage() {
     return token;
   }
 
+
   async function recordView(
     cardData
   ) {
     if (
-      typeof window === 'undefined'
+      typeof window ===
+      'undefined'
     ) {
       return;
     }
@@ -230,11 +299,13 @@ export default function PublicCardPage() {
     );
   }
 
+
   async function recordEvent(
     cardId,
     eventType,
     metadata = {},
-    linkId = null
+    linkId = null,
+    blockId = null
   ) {
     try {
       const {
@@ -243,11 +314,22 @@ export default function PublicCardPage() {
         .from('card_events')
         .insert({
           card_id: cardId,
-          link_id: linkId,
-          event_type: eventType,
-          source: 'public_card',
+
+          link_id:
+            linkId || null,
+
+          block_id:
+            blockId || null,
+
+          event_type:
+            eventType,
+
+          source:
+            'public_card',
+
           visitor_token:
             getVisitorToken(),
+
           metadata,
         });
 
@@ -265,126 +347,298 @@ export default function PublicCardPage() {
     }
   }
 
+
   function change(
     key,
     value
   ) {
-    setForm((previous) => ({
-      ...previous,
-      [key]: value,
-    }));
+    setForm(
+      (previous) => ({
+        ...previous,
+        [key]: value,
+      })
+    );
   }
 
-  function cleanPhone(value) {
-    return String(value || '')
-      .replace(/[^\d+]/g, '');
+
+  function cleanPhone(
+    value
+  ) {
+    return String(
+      value || ''
+    ).replace(
+      /[^\d+]/g,
+      ''
+    );
   }
 
-  function normalizeUrl(value) {
-    if (!value) {
-      return '#';
+
+  function normalizeUrl(
+    value
+  ) {
+    const clean =
+      String(
+        value || ''
+      ).trim();
+
+    if (!clean) {
+      return null;
     }
 
     if (
-      value.startsWith(
+      clean.startsWith(
         'http://'
       ) ||
-      value.startsWith(
+      clean.startsWith(
         'https://'
       )
     ) {
-      return value;
+      return clean;
     }
 
-    return `https://${value}`;
+    return `https://${clean}`;
   }
 
-  function getLinkUrl(link) {
-    switch (link.link_type) {
+
+  function getLinkUrl(
+    link
+  ) {
+    const value =
+      String(
+        link.value || ''
+      ).trim();
+
+    switch (
+      link.link_type
+    ) {
       case 'whatsapp':
-        return `https://wa.me/${cleanPhone(
-          link.value
-        ).replace('+', '')}`;
+        return value
+          ? `https://wa.me/${cleanPhone(
+              value
+            ).replace(
+              '+',
+              ''
+            )}`
+          : null;
 
       case 'phone':
-        return `tel:${cleanPhone(
-          link.value
-        )}`;
+        return value
+          ? `tel:${cleanPhone(
+              value
+            )}`
+          : null;
 
       case 'email':
-        return `mailto:${link.value}`;
+        return value
+          ? `mailto:${value}`
+          : null;
 
       case 'website':
         return normalizeUrl(
-          link.value
+          value
         );
 
       case 'location':
+        if (!value) {
+          return null;
+        }
+
         if (
-          link.value.startsWith(
+          value.startsWith(
             'http'
           )
         ) {
-          return link.value;
+          return value;
         }
 
         return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-          link.value
+          value
         )}`;
 
       default:
         return normalizeUrl(
-          link.value
+          value
         );
     }
   }
 
-  function getEventType(type) {
+
+  function getBlockUrl(
+    block
+  ) {
+    const type =
+      block.block_type;
+
+    const value =
+      String(
+        block.value || ''
+      ).trim();
+
+    const url =
+      String(
+        block.url || ''
+      ).trim();
+
+    const target =
+      url || value;
+
+    switch (type) {
+      case 'whatsapp':
+        return target
+          ? `https://wa.me/${cleanPhone(
+              target
+            ).replace(
+              '+',
+              ''
+            )}`
+          : null;
+
+      case 'phone':
+        return target
+          ? `tel:${cleanPhone(
+              target
+            )}`
+          : null;
+
+      case 'email':
+        return target
+          ? `mailto:${target}`
+          : null;
+
+      case 'map':
+      case 'location':
+        if (!target) {
+          return null;
+        }
+
+        if (
+          target.startsWith(
+            'http'
+          )
+        ) {
+          return target;
+        }
+
+        return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          target
+        )}`;
+
+      case 'website':
+      case 'instagram':
+      case 'facebook':
+      case 'linkedin':
+      case 'youtube':
+      case 'google_reviews':
+      case 'pdf':
+      case 'video':
+      case 'drive':
+      case 'image':
+      case 'custom':
+      default:
+        return normalizeUrl(
+          target
+        );
+    }
+  }
+
+
+  function getEventType(
+    type
+  ) {
     const map = {
       whatsapp:
         'whatsapp_click',
+
       phone:
         'phone_click',
+
       email:
         'email_click',
+
       website:
         'website_click',
+
       instagram:
         'instagram_click',
+
       facebook:
         'facebook_click',
+
       linkedin:
         'linkedin_click',
+
       youtube:
         'youtube_click',
+
       google_reviews:
         'google_review_click',
+
       location:
         'location_click',
+
+      map:
+        'location_click',
+
+      pdf:
+        'pdf_click',
+
+      video:
+        'video_click',
+
+      drive:
+        'drive_click',
+
+      image:
+        'image_click',
+
+      custom:
+        'custom_click',
     };
 
     return (
       map[type] ||
-      `${type}_click`
+      'block_click'
     );
   }
 
-  function getIcon(type) {
+
+  function getIcon(
+    type
+  ) {
     const icons = {
-      whatsapp: '?',
-      phone: '?',
-      email: '?',
-      website: '?',
-      instagram: '?',
-      facebook: 'f',
-      linkedin: 'in',
-      youtube: '?',
-      google_reviews: '?',
-      location: '?',
+      whatsapp: 'WA',
+      phone: 'PH',
+      email: 'EM',
+      website: 'WWW',
+      instagram: 'IG',
+      facebook: 'FB',
+      linkedin: 'IN',
+      youtube: 'YT',
+      google_reviews: 'REV',
+      location: 'MAP',
+      map: 'MAP',
+      pdf: 'PDF',
+      video: 'VID',
+      drive: 'DRV',
+      image: 'IMG',
+      custom: 'LINK',
     };
 
-    return icons[type] || '?';
+    return (
+      icons[type] ||
+      'LINK'
+    );
   }
+
+  function shouldOpenNewTab(
+    type
+  ) {
+    return ![
+      'phone',
+      'email',
+    ].includes(type);
+  }
+
 
   async function handleLinkClick(
     link
@@ -399,11 +653,48 @@ export default function PublicCardPage() {
         link.link_type
       ),
       {
-        label: link.label,
+        label:
+          link.label,
+
+        type:
+          link.link_type,
+
+        origin:
+          'card_link',
       },
-      link.id
+      link.id,
+      null
     );
   }
+
+
+  async function handleBlockClick(
+    block
+  ) {
+    if (!card) {
+      return;
+    }
+
+    await recordEvent(
+      card.id,
+      getEventType(
+        block.block_type
+      ),
+      {
+        title:
+          block.title,
+
+        block_type:
+          block.block_type,
+
+        origin:
+          'card_block',
+      },
+      null,
+      block.id
+    );
+  }
+
 
   async function submitEnquiry(
     event
@@ -414,10 +705,13 @@ export default function PublicCardPage() {
       return;
     }
 
-    if (!form.name.trim()) {
+    if (
+      !form.name.trim()
+    ) {
       alert(
         'Please enter your name.'
       );
+
       return;
     }
 
@@ -428,6 +722,7 @@ export default function PublicCardPage() {
       alert(
         'Please enter a phone number or email address.'
       );
+
       return;
     }
 
@@ -440,7 +735,8 @@ export default function PublicCardPage() {
       } = await supabase
         .from('connections')
         .insert({
-          card_id: card.id,
+          card_id:
+            card.id,
 
           name:
             form.name.trim(),
@@ -467,10 +763,13 @@ export default function PublicCardPage() {
           source_detail:
             card.card_slug,
 
-          stage: 'new',
+          stage:
+            'new',
         });
 
-      if (connectionError) {
+      if (
+        connectionError
+      ) {
         throw connectionError;
       }
 
@@ -492,7 +791,9 @@ export default function PublicCardPage() {
         company: '',
         requirement: '',
       });
-    } catch (submitError) {
+    } catch (
+      submitError
+    ) {
       console.error(
         'Lead submit error:',
         submitError
@@ -506,6 +807,7 @@ export default function PublicCardPage() {
       setSubmitting(false);
     }
   }
+
 
   async function shareCard() {
     if (
@@ -543,9 +845,10 @@ export default function PublicCardPage() {
         );
       }
     } catch {
-      // User cancelled share.
+      // Share cancelled.
     }
   }
+
 
   const students =
     useMemo(
@@ -558,6 +861,7 @@ export default function PublicCardPage() {
       [portfolio]
     );
 
+
   const employees =
     useMemo(
       () =>
@@ -568,6 +872,7 @@ export default function PublicCardPage() {
         ),
       [portfolio]
     );
+
 
   if (loading) {
     return (
@@ -589,7 +894,11 @@ export default function PublicCardPage() {
     );
   }
 
-  if (error || !card) {
+
+  if (
+    error ||
+    !card
+  ) {
     return (
       <main
         className={
@@ -601,7 +910,10 @@ export default function PublicCardPage() {
             styles.errorCard
           }
         >
-          <h1>YNS CARD</h1>
+          <h1>
+            YNS CARD
+          </h1>
+
           <p>
             {error ||
               'Card not found.'}
@@ -610,6 +922,7 @@ export default function PublicCardPage() {
       </main>
     );
   }
+
 
   return (
     <main
@@ -654,6 +967,7 @@ export default function PublicCardPage() {
           </button>
         </div>
 
+
         <div
           className={
             styles.profileCard
@@ -664,7 +978,9 @@ export default function PublicCardPage() {
               src={
                 card.profile_image_url
               }
-              alt={card.name}
+              alt={
+                card.name
+              }
               className={
                 styles.avatar
               }
@@ -700,7 +1016,9 @@ export default function PublicCardPage() {
 
           {card.company ? (
             <h2>
-              {card.company}
+              {
+                card.company
+              }
             </h2>
           ) : null}
 
@@ -724,58 +1042,208 @@ export default function PublicCardPage() {
             </p>
           ) : null}
 
-          <div
-            className={
-              styles.actionGrid
-            }
-          >
-            {links.map(
-              (link) => (
-                <a
-                  key={link.id}
-                  href={
+
+          {links.length > 0 ? (
+            <div
+              className={
+                styles.actionGrid
+              }
+            >
+              {links.map(
+                (link) => {
+                  const href =
                     getLinkUrl(
                       link
-                    )
-                  }
-                  target={
-                    [
-                      'phone',
-                      'email',
-                    ].includes(
-                      link.link_type
-                    )
-                      ? undefined
-                      : '_blank'
-                  }
-                  rel="noreferrer"
-                  className={
-                    styles.action
-                  }
-                  onClick={() =>
-                    handleLinkClick(
-                      link
-                    )
-                  }
-                >
-                  <span
-                    className={
-                      styles.actionIcon
-                    }
-                  >
-                    {getIcon(
-                      link.link_type
-                    )}
-                  </span>
+                    );
 
-                  <span>
-                    {link.label}
-                  </span>
-                </a>
-              )
-            )}
-          </div>
+                  if (!href) {
+                    return null;
+                  }
+
+                  return (
+                    <a
+                      key={
+                        link.id
+                      }
+                      href={
+                        href
+                      }
+                      target={
+                        shouldOpenNewTab(
+                          link.link_type
+                        )
+                          ? '_blank'
+                          : undefined
+                      }
+                      rel={
+                        shouldOpenNewTab(
+                          link.link_type
+                        )
+                          ? 'noreferrer'
+                          : undefined
+                      }
+                      className={
+                        styles.action
+                      }
+                      onClick={() =>
+                        handleLinkClick(
+                          link
+                        )
+                      }
+                    >
+                      <span
+                        className={
+                          styles.actionIcon
+                        }
+                      >
+                        {getIcon(
+                          link.link_type
+                        )}
+                      </span>
+
+                      <span>
+                        {
+                          link.label
+                        }
+                      </span>
+                    </a>
+                  );
+                }
+              )}
+            </div>
+          ) : null}
         </div>
+
+
+        {blocks.length > 0 ? (
+          <section
+            className={
+              styles.section
+            }
+          >
+            <div
+              className={
+                styles.sectionHeading
+              }
+            >
+              <span>
+                QUICK LINKS
+              </span>
+
+              <strong>
+                Connect & Explore
+              </strong>
+            </div>
+
+            <div
+              className={
+                styles.blockGrid
+              }
+            >
+              {blocks.map(
+                (block) => {
+                  const href =
+                    getBlockUrl(
+                      block
+                    );
+
+                  if (!href) {
+                    return null;
+                  }
+
+                  return (
+                    <a
+                      key={
+                        block.id
+                      }
+                      href={href}
+                      target={
+                        shouldOpenNewTab(
+                          block.block_type
+                        )
+                          ? '_blank'
+                          : undefined
+                      }
+                      rel={
+                        shouldOpenNewTab(
+                          block.block_type
+                        )
+                          ? 'noreferrer'
+                          : undefined
+                      }
+                      className={
+                        styles.blockItem
+                      }
+                      onClick={() =>
+                        handleBlockClick(
+                          block
+                        )
+                      }
+                    >
+                      <div
+                        className={
+                          styles.blockIcon
+                        }
+                      >
+                        {getIcon(
+                          block.block_type
+                        )}
+                      </div>
+
+                      <div
+                        className={
+                          styles.blockContent
+                        }
+                      >
+                        <strong
+                          className={
+                            styles.blockTitle
+                          }
+                        >
+                          {block.title ||
+                            'Open'}
+                        </strong>
+
+                        {block.subtitle ? (
+                          <span
+                            className={
+                              styles.blockSubtitle
+                            }
+                          >
+                            {
+                              block.subtitle
+                            }
+                          </span>
+                        ) : null}
+
+                        {block.value ? (
+                          <span
+                            className={
+                              styles.blockValue
+                            }
+                          >
+                            {
+                              block.value
+                            }
+                          </span>
+                        ) : null}
+                      </div>
+
+                      <span
+                        className={
+                          styles.blockArrow
+                        }
+                      >
+                        {'>'}
+                      </span>
+                    </a>
+                  );
+                }
+              )}
+            </div>
+          </section>
+        ) : null}
+
 
         {services.length >
         0 ? (
@@ -818,7 +1286,7 @@ export default function PublicCardPage() {
                         styles.serviceMark
                       }
                     >
-                      ?
+                      S
                     </div>
 
                     <div>
@@ -842,6 +1310,7 @@ export default function PublicCardPage() {
             </div>
           </section>
         ) : null}
+
 
         {portfolio.length >
         0 ? (
@@ -896,6 +1365,7 @@ export default function PublicCardPage() {
               </>
             ) : null}
 
+
             {employees.length >
             0 ? (
               <>
@@ -929,6 +1399,7 @@ export default function PublicCardPage() {
             ) : null}
           </section>
         ) : null}
+
 
         <section
           className={
@@ -994,6 +1465,7 @@ export default function PublicCardPage() {
             >
               <label>
                 Name *
+
                 <input
                   value={
                     form.name
@@ -1011,6 +1483,7 @@ export default function PublicCardPage() {
                 />
               </label>
 
+
               <div
                 className={
                   styles.twoColumns
@@ -1018,6 +1491,7 @@ export default function PublicCardPage() {
               >
                 <label>
                   Phone
+
                   <input
                     value={
                       form.phone
@@ -1035,8 +1509,10 @@ export default function PublicCardPage() {
                   />
                 </label>
 
+
                 <label>
                   Email
+
                   <input
                     type="email"
                     value={
@@ -1056,8 +1532,10 @@ export default function PublicCardPage() {
                 </label>
               </div>
 
+
               <label>
                 Company
+
                 <input
                   value={
                     form.company
@@ -1075,8 +1553,10 @@ export default function PublicCardPage() {
                 />
               </label>
 
+
               <label>
                 Requirement
+
                 <textarea
                   value={
                     form.requirement
@@ -1094,6 +1574,7 @@ export default function PublicCardPage() {
                   rows={4}
                 />
               </label>
+
 
               <button
                 type="submit"
@@ -1122,6 +1603,7 @@ export default function PublicCardPage() {
           )}
         </section>
 
+
         <footer
           className={
             styles.footer
@@ -1141,6 +1623,7 @@ export default function PublicCardPage() {
   );
 }
 
+
 function PortfolioItem({
   item,
 }) {
@@ -1152,8 +1635,12 @@ function PortfolioItem({
     >
       {item.image_url ? (
         <img
-          src={item.image_url}
-          alt={item.title}
+          src={
+            item.image_url
+          }
+          alt={
+            item.title
+          }
           className={
             styles.portfolioImage
           }
