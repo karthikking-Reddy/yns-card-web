@@ -1411,3 +1411,107 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* =========================================
+   YNS PREMIUM WEB - FINAL POLISH FIXES
+========================================= */
+
+/* HERO ACTION BAR
+   Force link/button text to stay white.
+   .page a has stronger specificity in the
+   base stylesheet, so this override is needed.
+*/
+.contactBar .contactAction {
+  color: #ffffff !important;
+}
+
+.contactBar .contactAction strong {
+  color: #ffffff !important;
+  opacity: 1;
+}
+
+.contactBar .whatsappAction strong {
+  color: #ffffff !important;
+}
+
+
+/* ABOUT INFORMATION
+   Automatically fill available width when
+   only 1 or 2 profile details exist.
+*/
+.aboutMeta {
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(190px, 1fr)
+    );
+}
+
+
+/* SERVICES
+   More compact premium cards when there is
+   no long description.
+*/
+.serviceCard {
+  min-height: 125px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.serviceCard h3 {
+  margin-top: 14px;
+  margin-bottom: 5px;
+}
+
+
+/* FOOTER
+   Prevent global footer/max-width rules from
+   constraining the premium YNS footer.
+*/
+.footer {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+
+/* Slightly improve overall desktop spacing */
+@media (min-width: 761px) {
+  .content {
+    padding-top: 4px;
+  }
+
+  .sectionCard {
+    padding: 24px;
+  }
+
+  .serviceGrid {
+    align-items: stretch;
+  }
+}
+
+
+/* MOBILE POLISH */
+@media (max-width: 760px) {
+  .contactBar .contactAction {
+    color: #ffffff !important;
+  }
+
+  .contactBar .contactAction strong {
+    display: block;
+    color: #ffffff !important;
+    font-size: 9px;
+  }
+
+  .serviceCard {
+    min-height: 105px;
+  }
+
+  .footer {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
