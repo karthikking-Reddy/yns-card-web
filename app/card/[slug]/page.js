@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import QRCode from 'react-qr-code';
 import { supabase } from '../../../lib/supabase';
@@ -34,6 +34,11 @@ const LABELS = {
   custom: 'LINK',
 };
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_MIN_DIGITS = 7;
+const PHONE_MAX_DIGITS = 15;
+const PUBLIC_CARD_BASE_URL = 'https://card.ynscrm.online';
+
 export default function PublicCardPage() {
   const params = useParams();
   const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
@@ -49,6 +54,13 @@ export default function PublicCardPage() {
   const [submitted, setSubmitted] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const publicUrl = slug
+    ? `${PUBLIC_CARD_BASE_URL}/card/${encodeURIComponent(slug)}`
+    : '';
+  const [formError, setFormError] = useState('');
+  const [actionError, setActionError] = useState('');
+  const submittingRef = useRef(false);
+  const closeButtonRef = useRef(null);
 
   const [form, setForm] = useState({
     name: '',
@@ -62,6 +74,24 @@ export default function PublicCardPage() {
     if (slug) loadCard();
   }, [slug]);
 
+  useEffect(() => {
+    if (!qrOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setQrOpen(false);
+    };
+
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleKeyDown);
+    closeButtonRef.current?.focus();
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [qrOpen]);
+
   async function loadCard() {
     setLoading(true);
     setError('');
@@ -73,6 +103,7 @@ export default function PublicCardPage() {
         .eq('card_slug', slug)
         .eq('is_public', true)
         .eq('is_active', true)
+        .eq('approval_status', 'approved')
         .maybeSingle();
 
       if (cardError) throw cardError;
@@ -125,9 +156,8 @@ export default function PublicCardPage() {
       setPortfolio(portfolioResult.data || []);
 
       await recordView(cardData);
-    } catch (e) {
-      console.error('Public card load error:', e);
-      setError(e?.message || 'Unable to load digital card.');
+    } catch {
+      setError('Unable to load this digital card right now. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -137,7 +167,13 @@ export default function PublicCardPage() {
     if (typeof window === 'undefined') return null;
 
     const key = 'yns_card_visitor_token';
-    let token = localStorage.getItem(key);
+    let token;
+
+    try {
+      token = localStorage.getItem(key);
+    } catch {
+      return null;
+    }
 
     if (!token) {
       token =
@@ -145,7 +181,11 @@ export default function PublicCardPage() {
           ? crypto.randomUUID()
           : `${Date.now()}-${Math.random()}`;
 
-      localStorage.setItem(key, token);
+      try {
+        localStorage.setItem(key, token);
+      } catch {
+        return null;
+      }
     }
 
     return token;
@@ -155,9 +195,12 @@ export default function PublicCardPage() {
     if (typeof window === 'undefined') return;
 
     const sessionKey = `yns-card-view-${cardData.id}`;
-    if (sessionStorage.getItem(sessionKey)) return;
-
-    sessionStorage.setItem(sessionKey, '1');
+    try {
+      if (sessionStorage.getItem(sessionKey)) return;
+      sessionStorage.setItem(sessionKey, '1');
+    } catch {
+      // Analytics should still work when storage is unavailable.
+    }
 
     await recordEvent(cardData.id, 'card_view', {
       slug: cardData.card_slug,
@@ -190,35 +233,58 @@ export default function PublicCardPage() {
     }
   }
 
-  function cleanPhone(value) {
-    return String(value || '').replace(/[^\d+]/g, '');
+  function cleanPhone(value, allowPlus = true) {
+    const input = String(value || '').trim();
+    const digits = input.replace(/\D/g, '').slice(0, PHONE_MAX_DIGITS);
+    return `${allowPlus && input.startsWith('+') ? '+' : ''}${digits}`;
   }
 
   function normalizeUrl(value) {
-    if (!value) return null;
-    if (value.startsWith('http://') || value.startsWith('https://')) return value;
-    return `https://${value}`;
+    const input = String(value || '').trim();
+    if (!input || /[\u0000-\u001F\u007F\s]/.test(input)) return null;
+
+    try {
+      const url = new URL(/^https?:\/\//i.test(input) ? input : `https://${input}`);
+      return ['http:', 'https:'].includes(url.protocol) && url.hostname
+        ? url.href
+        : null;
+    } catch {
+      return null;
+    }
   }
 
   function getUrl(type, value) {
-    if (!value) return null;
+    const input = String(value || '').trim();
+    if (!input) return null;
 
     switch (type) {
-      case 'whatsapp':
-        return `https://wa.me/${cleanPhone(value).replace('+', '')}`;
-      case 'phone':
-        return `tel:${cleanPhone(value)}`;
-      case 'email':
-        return `mailto:${value}`;
+      case 'whatsapp': {
+        const number = cleanPhone(input, false);
+        return number.length >= PHONE_MIN_DIGITS
+          ? `https://wa.me/${number}`
+          : null;
+      }
+      case 'phone': {
+        const number = cleanPhone(input);
+        return number.replace(/\D/g, '').length >= PHONE_MIN_DIGITS
+          ? `tel:${number}`
+          : null;
+      }
+      case 'email': {
+        const address = input.replace(/^mailto:/i, '').trim();
+        return EMAIL_PATTERN.test(address) ? `mailto:${address}` : null;
+      }
       case 'location':
-      case 'map':
-        return value.startsWith('http')
-          ? value
+      case 'map': {
+        const normalized = normalizeUrl(input);
+        return /^https?:\/\//i.test(input) && normalized
+          ? normalized
           : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-              value
+              input
             )}`;
+      }
       default:
-        return normalizeUrl(value);
+        return normalizeUrl(input);
     }
   }
 
@@ -269,10 +335,12 @@ export default function PublicCardPage() {
       }
     });
 
-    const whatsapp =
-      card.whatsapp || firstByType.whatsapp?.value || card.phone;
-    const phone = card.phone || firstByType.phone?.value;
-    const email = card.email || firstByType.email?.value;
+    const whatsappLink = firstByType.whatsapp;
+    const phoneLink = firstByType.phone;
+    const emailLink = firstByType.email;
+    const whatsapp = card.whatsapp || whatsappLink?.value || whatsappLink?.url || card.phone;
+    const phone = card.phone || phoneLink?.value || phoneLink?.url;
+    const email = card.email || emailLink?.value || emailLink?.url;
 
     return [
       whatsapp
@@ -280,6 +348,7 @@ export default function PublicCardPage() {
             type: 'whatsapp',
             label: 'WhatsApp',
             href: getUrl('whatsapp', whatsapp),
+            linkId: card.whatsapp || card.phone ? null : whatsappLink?.id,
           }
         : null,
       phone
@@ -287,6 +356,7 @@ export default function PublicCardPage() {
             type: 'phone',
             label: 'Call',
             href: getUrl('phone', phone),
+            linkId: card.phone ? null : phoneLink?.id,
           }
         : null,
       email
@@ -294,9 +364,10 @@ export default function PublicCardPage() {
             type: 'email',
             label: 'Email',
             href: getUrl('email', email),
+            linkId: card.email ? null : emailLink?.id,
           }
         : null,
-    ].filter(Boolean);
+    ].filter((item) => item?.href);
   }, [card, links]);
 
   const socialLinks = useMemo(
@@ -313,6 +384,14 @@ export default function PublicCardPage() {
         (item) => !SOCIAL_TYPES.has(item.link_type) && getLinkUrl(item)
       ),
     [links]
+  );
+
+  const mobileContacts = useMemo(
+    () =>
+      ['whatsapp', 'phone']
+        .map((type) => quickContacts.find((item) => item.type === type))
+        .filter(Boolean),
+    [quickContacts]
   );
 
   async function handleLinkClick(link) {
@@ -343,27 +422,37 @@ export default function PublicCardPage() {
   }
 
   async function shareCard() {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !publicUrl) return;
 
     const data = {
       title: `${card?.name || 'Digital Card'} - YNS Card`,
       text: `View ${card?.name || ''}'s digital business card.`,
-      url: window.location.href,
+      url: publicUrl,
     };
 
     try {
       if (navigator.share) {
         await navigator.share(data);
       } else {
-        await navigator.clipboard.writeText(window.location.href);
+        await copyText(publicUrl);
         showCopied();
       }
 
       await recordEvent(card.id, 'share_click', {
         origin: 'public_card',
       });
-    } catch {
-      // User cancelled.
+    } catch (shareError) {
+      if (shareError?.name === 'AbortError') return;
+
+      try {
+        await copyText(publicUrl);
+        showCopied();
+        await recordEvent(card.id, 'share_click', {
+          origin: 'public_card_fallback',
+        });
+      } catch {
+        showActionError('Sharing is unavailable. Please copy the URL from your browser.');
+      }
     }
   }
 
@@ -372,20 +461,30 @@ export default function PublicCardPage() {
     setTimeout(() => setCopied(false), 1600);
   }
 
-  async function copyLink() {
-    await navigator.clipboard.writeText(window.location.href);
-    showCopied();
+  function showActionError(message) {
+    setActionError(message);
+    window.setTimeout(() => setActionError(''), 4000);
+  }
 
-    await recordEvent(card.id, 'copy_link_click', {
-      origin: 'qr_modal',
-    });
+  async function copyLink() {
+    try {
+      await copyText(publicUrl);
+      showCopied();
+      await recordEvent(card.id, 'copy_link_click', {
+        origin: 'qr_modal',
+      });
+    } catch {
+      showActionError('Unable to copy automatically. Please copy the URL from your browser.');
+    }
   }
 
   async function saveContact() {
     const name = card.name || 'YNS Contact';
     const phone = card.phone || card.whatsapp || '';
     const email = card.email || '';
-    const website = card.website || '';
+    const websiteLink = links.find((link) => link.link_type === 'website');
+    const website = card.website || websiteLink?.value || websiteLink?.url || '';
+    const normalizedWebsite = normalizeUrl(website);
     const company = card.company || '';
     const title = card.designation || '';
 
@@ -393,15 +492,16 @@ export default function PublicCardPage() {
       'BEGIN:VCARD',
       'VERSION:3.0',
       `FN:${escapeVCard(name)}`,
+      `N:${escapeVCard(name)};;;;`,
       `ORG:${escapeVCard(company)}`,
       `TITLE:${escapeVCard(title)}`,
-      phone ? `TEL;TYPE=CELL:${escapeVCard(phone)}` : '',
-      email ? `EMAIL:${escapeVCard(email)}` : '',
-      website ? `URL:${escapeVCard(normalizeUrl(website) || website)}` : '',
+      phone ? `TEL;TYPE=CELL:${escapeVCard(cleanPhone(phone))}` : '',
+      email && EMAIL_PATTERN.test(email) ? `EMAIL;TYPE=INTERNET:${escapeVCard(email)}` : '',
+      normalizedWebsite ? `URL:${escapeVCard(normalizedWebsite)}` : '',
       'END:VCARD',
     ]
       .filter(Boolean)
-      .join('\n');
+      .join('\r\n') + '\r\n';
 
     const blob = new Blob([vcard], {
       type: 'text/vcard;charset=utf-8',
@@ -417,7 +517,7 @@ export default function PublicCardPage() {
     a.click();
     a.remove();
 
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 
     await recordEvent(card.id, 'save_contact_click', {
       origin: 'public_card',
@@ -425,6 +525,7 @@ export default function PublicCardPage() {
   }
 
   function change(key, value) {
+    setFormError('');
     setForm((previous) => ({
       ...previous,
       [key]: value,
@@ -433,27 +534,45 @@ export default function PublicCardPage() {
 
   async function submitEnquiry(event) {
     event.preventDefault();
+    if (submittingRef.current) return;
 
-    if (!form.name.trim()) {
-      alert('Please enter your name.');
+    const name = form.name.trim();
+    const phone = form.phone.trim();
+    const email = form.email.trim().toLowerCase();
+    const phoneDigits = phone.replace(/\D/g, '');
+
+    if (name.length < 2) {
+      setFormError('Please enter your name (at least 2 characters).');
       return;
     }
 
-    if (!form.phone.trim() && !form.email.trim()) {
-      alert('Please enter a phone number or email address.');
+    if (!phone && !email) {
+      setFormError('Please enter a phone number or email address.');
       return;
     }
 
+    if (phone && (phoneDigits.length < PHONE_MIN_DIGITS || phoneDigits.length > PHONE_MAX_DIGITS)) {
+      setFormError('Please enter a valid phone number with 7 to 15 digits.');
+      return;
+    }
+
+    if (email && !EMAIL_PATTERN.test(email)) {
+      setFormError('Please enter a valid email address.');
+      return;
+    }
+
+    submittingRef.current = true;
     setSubmitting(true);
+    setFormError('');
 
     try {
       const { error: connectionError } = await supabase
         .from('connections')
         .insert({
           card_id: card.id,
-          name: form.name.trim(),
-          phone: form.phone.trim() || null,
-          email: form.email.trim() || null,
+          name,
+          phone: phone ? cleanPhone(phone) : null,
+          email: email || null,
           company: form.company.trim() || null,
           requirement: form.requirement.trim() || null,
           source: 'public_card',
@@ -475,10 +594,10 @@ export default function PublicCardPage() {
         company: '',
         requirement: '',
       });
-    } catch (e) {
-      console.error('Lead submit error:', e);
-      alert(e?.message || 'Unable to submit enquiry.');
+    } catch {
+      setFormError('Unable to send your enquiry right now. Please try again.');
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   }
@@ -505,15 +624,15 @@ export default function PublicCardPage() {
     );
   }
 
+  const normalizedTheme = String(card.theme || '')
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
   const themeClass =
-    card.theme === 'gold'
+    normalizedTheme === 'gold' || normalizedTheme === 'yns_gold'
       ? styles.goldTheme
-      : card.theme === 'ocean'
+      : normalizedTheme === 'ocean'
       ? styles.oceanTheme
       : styles.standardTheme;
-
-  const currentUrl =
-    typeof window !== 'undefined' ? window.location.href : '';
 
   return (
     <main className={`${styles.page} ${themeClass}`}>
@@ -526,10 +645,10 @@ export default function PublicCardPage() {
           </span>
         </a>
 
-        <nav className={styles.nav}>
+        <nav className={styles.nav} aria-label="Card sections">
           <a href="#about">About</a>
-          <a href="#services">Services</a>
-          <a href="#portfolio">Portfolio</a>
+          {services.length > 0 ? <a href="#services">Services</a> : null}
+          {portfolio.length > 0 ? <a href="#portfolio">Portfolio</a> : null}
           <a href="#contact">Contact</a>
         </nav>
 
@@ -586,7 +705,7 @@ export default function PublicCardPage() {
             <div className={styles.profileInfo}>
               <div className={styles.nameRow}>
                 <h1>{card.name || 'YNS Card'}</h1>
-                <span className={styles.verified}>✓</span>
+                <span className={styles.verified} aria-label="Verified">✓</span>
               </div>
 
               {card.designation ? <h2>{card.designation}</h2> : null}
@@ -606,7 +725,7 @@ export default function PublicCardPage() {
 
             <div className={styles.desktopQr}>
               <QRCode
-                value={currentUrl || 'https://yns-card-web.vercel.app'}
+                value={publicUrl}
                 size={104}
                 bgColor="#ffffff"
                 fgColor="#06162d"
@@ -625,9 +744,12 @@ export default function PublicCardPage() {
                     item.type === 'whatsapp' ? styles.whatsappAction : ''
                   }`}
                   onClick={() =>
-                    recordEvent(card.id, getEventType(item.type), {
-                      origin: 'hero_action',
-                    })
+                    recordEvent(
+                      card.id,
+                      getEventType(item.type),
+                      { origin: 'hero_action' },
+                      item.linkId || null
+                    )
                   }
                 >
                   <span className={styles.actionBadge}>
@@ -840,7 +962,12 @@ export default function PublicCardPage() {
               </button>
             </div>
           ) : (
-            <form className={styles.form} onSubmit={submitEnquiry}>
+            <form className={styles.form} onSubmit={submitEnquiry} noValidate>
+              {formError ? (
+                <p className={styles.formError} role="alert">
+                  {formError}
+                </p>
+              ) : null}
               <div className={styles.twoColumns}>
                 <label>
                   Name *
@@ -848,15 +975,23 @@ export default function PublicCardPage() {
                     value={form.name}
                     onChange={(e) => change('name', e.target.value)}
                     placeholder="Your name"
+                    autoComplete="name"
+                    required
+                    minLength={2}
+                    maxLength={100}
                   />
                 </label>
 
                 <label>
                   Phone
                   <input
+                    type="tel"
                     value={form.phone}
                     onChange={(e) => change('phone', e.target.value)}
                     placeholder="+91..."
+                    inputMode="tel"
+                    autoComplete="tel"
+                    maxLength={25}
                   />
                 </label>
               </div>
@@ -869,6 +1004,9 @@ export default function PublicCardPage() {
                     value={form.email}
                     onChange={(e) => change('email', e.target.value)}
                     placeholder="you@example.com"
+                    inputMode="email"
+                    autoComplete="email"
+                    maxLength={254}
                   />
                 </label>
 
@@ -878,6 +1016,8 @@ export default function PublicCardPage() {
                     value={form.company}
                     onChange={(e) => change('company', e.target.value)}
                     placeholder="Company name"
+                    autoComplete="organization"
+                    maxLength={150}
                   />
                 </label>
               </div>
@@ -889,6 +1029,7 @@ export default function PublicCardPage() {
                   onChange={(e) => change('requirement', e.target.value)}
                   placeholder="Tell us what you need..."
                   rows={5}
+                  maxLength={2000}
                 />
               </label>
 
@@ -939,7 +1080,7 @@ export default function PublicCardPage() {
       </footer>
 
       <div className={styles.mobileStickyBar}>
-        {quickContacts.slice(0, 2).map((item) => (
+        {mobileContacts.map((item) => (
           <a
             key={item.type}
             href={item.href}
@@ -951,9 +1092,12 @@ export default function PublicCardPage() {
                 : styles.mobileCall
             }
             onClick={() =>
-              recordEvent(card.id, getEventType(item.type), {
-                origin: 'mobile_sticky',
-              })
+              recordEvent(
+                card.id,
+                getEventType(item.type),
+                { origin: 'mobile_sticky' },
+                item.linkId || null
+              )
             }
           >
             {LABELS[item.type] || 'GO'}
@@ -979,21 +1123,28 @@ export default function PublicCardPage() {
             }
           }}
         >
-          <div className={styles.qrModal}>
+          <div
+            className={styles.qrModal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="qr-modal-title"
+          >
             <button
+              ref={closeButtonRef}
               type="button"
               className={styles.modalClose}
               onClick={() => setQrOpen(false)}
+              aria-label="Close QR code"
             >
               ×
             </button>
 
             <span className={styles.modalEyebrow}>SHARE MY CARD</span>
-            <h2>Scan QR Code</h2>
+            <h2 id="qr-modal-title">Scan QR Code</h2>
 
             <div className={styles.modalQr}>
               <QRCode
-                value={currentUrl || 'https://yns-card-web.vercel.app'}
+                value={publicUrl}
                 size={190}
                 bgColor="#ffffff"
                 fgColor="#06162d"
@@ -1020,6 +1171,9 @@ export default function PublicCardPage() {
       ) : null}
 
       {copied ? <div className={styles.toast}>Card link copied</div> : null}
+      {actionError ? (
+        <div className={styles.errorToast} role="alert">{actionError}</div>
+      ) : null}
     </main>
   );
 }
@@ -1082,4 +1236,25 @@ function escapeVCard(value) {
     .replace(/\n/g, '\\n')
     .replace(/,/g, '\\,')
     .replace(/;/g, '\\;');
+}
+
+async function copyText(value) {
+  if (!value) throw new Error('Nothing to copy');
+
+  if (navigator.clipboard?.writeText && window.isSecureContext) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = value;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand('copy');
+  textarea.remove();
+
+  if (!copied) throw new Error('Copy is unavailable');
 }
