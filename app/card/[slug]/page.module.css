@@ -141,7 +141,9 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   opacity: 0.9;
-  transition: color 0.2s ease, opacity 0.2s ease;
+  transition:
+    color 0.2s ease,
+    opacity 0.2s ease;
 }
 
 .nav a:hover {
@@ -186,8 +188,16 @@
 .hero {
   min-height: 360px;
   background:
-    radial-gradient(circle at 78% 26%, rgba(246, 185, 26, 0.12), transparent 26%),
-    radial-gradient(circle at 16% 82%, rgba(246, 185, 26, 0.08), transparent 28%),
+    radial-gradient(
+      circle at 78% 26%,
+      rgba(246, 185, 26, 0.12),
+      transparent 26%
+    ),
+    radial-gradient(
+      circle at 16% 82%,
+      rgba(246, 185, 26, 0.08),
+      transparent 28%
+    ),
     linear-gradient(120deg, var(--navy), var(--navy-2));
   background-position: center;
   background-size: cover;
@@ -215,13 +225,18 @@
   height: 120px;
   opacity: 0.2;
   transform: rotate(-4deg);
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent 0 15px,
-      var(--gold) 16px 17px
-    );
-  mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent);
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 15px,
+    var(--gold) 16px 17px
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 20%,
+    #000 80%,
+    transparent
+  );
 }
 
 .heroShell {
@@ -1092,7 +1107,11 @@
 .centerPage {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 75% 20%, rgba(246, 185, 26, 0.13), transparent 25%),
+    radial-gradient(
+      circle at 75% 20%,
+      rgba(246, 185, 26, 0.13),
+      transparent 25%
+    ),
     linear-gradient(135deg, #06162d, #0b2447);
   color: #fff;
   display: flex;
@@ -1447,6 +1466,662 @@
   }
 }
 
+/* =========================================
+   YNS PUBLIC CARD — APPROVED NAVY / GOLD UI
+========================================= */
+
+.page,
+.standardTheme,
+.goldTheme,
+.oceanTheme {
+  --navy: #061b36;
+  --navy-2: #031326;
+  --navy-3: #0b2a50;
+  --gold: #f4b91f;
+  --gold-dark: #d99a12;
+  --gold-soft: #fff6da;
+  --surface: #ffffff;
+  --surface-2: #faf8f2;
+  --text: #061b36;
+  --muted: #64748b;
+  --border: #e7e2d8;
+  --shadow: 0 24px 70px rgba(3, 19, 38, 0.14);
+}
+
+.page {
+  background: var(--surface-2);
+}
+
+.icon {
+  width: 1.15em;
+  height: 1.15em;
+  display: block;
+  flex: none;
+}
+
+.siteHeader {
+  height: 72px;
+  background: rgba(3, 19, 38, 0.98);
+  border-bottom-color: rgba(244, 185, 31, 0.22);
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(16px);
+}
+
+.brandMark,
+.footerMark {
+  width: 39px;
+  height: 39px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: Georgia, serif;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.headerGhostButton,
+.headerGoldButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.hero {
+  min-height: 430px;
+  padding: 66px 24px 96px;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(244, 185, 31, 0.2), transparent 22%),
+    radial-gradient(
+      circle at 8% 92%,
+      rgba(217, 154, 18, 0.15),
+      transparent 25%
+    ),
+    linear-gradient(125deg, #031326 0%, #061b36 58%, #0b2a50 100%);
+}
+
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  border: 2px solid rgba(244, 185, 31, 0.58);
+  transform: rotate(-10deg);
+}
+
+.hero::before {
+  width: 760px;
+  height: 190px;
+  right: -220px;
+  bottom: -116px;
+  box-shadow: 0 -13px 0 rgba(244, 185, 31, 0.12);
+}
+
+.hero::after {
+  width: 620px;
+  height: 150px;
+  left: -250px;
+  top: -80px;
+  border-color: rgba(244, 185, 31, 0.28);
+}
+
+.heroLines {
+  inset: auto -5% 34px -5%;
+  height: 86px;
+  opacity: 0.16;
+}
+
+.profilePanel {
+  width: min(1080px, 100%);
+  min-height: 290px;
+  grid-template-columns: 210px minmax(0, 1fr) 144px;
+  gap: 34px;
+  padding: 34px 36px 102px;
+  border: 1px solid rgba(244, 185, 31, 0.32);
+  border-radius: 32px;
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.28);
+}
+
+.profilePanel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  border-radius: 32px 32px 0 0;
+  background: linear-gradient(90deg, #b97808, #f4b91f 45%, #ffe18a, #d99a12);
+}
+
+.avatarWrap {
+  width: 190px;
+  height: 190px;
+  outline: 3px solid var(--gold);
+  box-shadow: 0 18px 45px rgba(3, 19, 38, 0.2);
+}
+
+.nameRow h1 {
+  color: var(--navy);
+  font-size: clamp(38px, 4.5vw, 58px);
+}
+
+.profileInfo h2 {
+  margin-top: 12px;
+  color: var(--gold-dark);
+  font-size: 20px;
+}
+
+.location .icon {
+  color: var(--gold-dark);
+  font-size: 15px;
+}
+
+.desktopQr {
+  border-color: #e1d4b4;
+  box-shadow: 0 10px 28px rgba(3, 19, 38, 0.08);
+}
+
+.contactBar {
+  left: 36px;
+  right: 36px;
+  bottom: 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid rgba(244, 185, 31, 0.24);
+  background: #031326;
+}
+
+.contactAction {
+  gap: 11px;
+}
+
+.contactAction:focus-visible,
+.secondaryActions button:focus-visible,
+.page a:focus-visible,
+.page button:focus-visible {
+  outline: 3px solid #f4b91f;
+  outline-offset: 3px;
+}
+
+.actionBadge {
+  min-width: 34px;
+  height: 34px;
+  font-size: 18px;
+}
+
+.whatsappAction .actionBadge {
+  color: #21c063;
+}
+
+.secondaryActions {
+  display: none;
+}
+
+.content {
+  width: min(1180px, calc(100% - 40px));
+  margin-top: -52px;
+  gap: 18px;
+  padding-bottom: 36px;
+  display: flex;
+  flex-direction: column;
+}
+
+.aboutSection {
+  order: 1;
+}
+.servicesSection {
+  order: 2;
+}
+.socialSection {
+  order: 3;
+}
+.businessSection {
+  order: 4;
+}
+.resourcesSection {
+  order: 5;
+}
+.portfolioSection {
+  order: 6;
+}
+.enquirySection {
+  order: 7;
+}
+
+.sectionCard {
+  padding: 28px;
+  border-radius: 24px;
+  border-color: var(--border);
+  box-shadow: 0 12px 38px rgba(3, 19, 38, 0.055);
+}
+
+.sectionHeading span {
+  color: var(--gold-dark);
+}
+
+.sectionHeading h2 {
+  color: var(--navy);
+  font-size: 23px;
+}
+
+.aboutSection {
+  grid-template-columns: 230px 1fr;
+}
+
+.aboutText {
+  color: #465469;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.metaChip {
+  background: #fdfbf7;
+  border-color: #ece5d7;
+}
+
+.businessGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.businessItem {
+  min-height: 76px;
+  padding: 13px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  min-width: 0;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+a.businessItem:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  box-shadow: 0 10px 24px rgba(3, 19, 38, 0.08);
+}
+
+.businessIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: var(--gold-dark);
+  background: var(--gold-soft);
+  font-size: 20px;
+}
+
+.businessCopy {
+  flex: 1;
+  min-width: 0;
+}
+
+.businessCopy small,
+.businessCopy strong {
+  display: block;
+}
+
+.businessCopy small {
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.businessCopy strong {
+  overflow: hidden;
+  color: var(--navy);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.businessItem > .icon {
+  color: var(--gold-dark);
+}
+
+.serviceGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.serviceCard {
+  min-height: 138px;
+  padding: 18px;
+  background: linear-gradient(145deg, #fff, #fdfbf7);
+  border-color: #ebe3d3;
+}
+
+.serviceIcon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+.serviceCard h3 {
+  color: var(--navy);
+  font-size: 14px;
+}
+
+.serviceCard p {
+  font-size: 10px;
+}
+
+.socialGrid {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.socialItem {
+  min-height: 94px;
+  background: #fff;
+}
+
+.socialIcon {
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 21px;
+}
+
+.blockIcon {
+  font-size: 20px;
+}
+
+.blockArrow {
+  font-size: 15px;
+}
+
+.portfolioGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.enquirySection {
+  grid-template-columns: minmax(250px, 0.75fr) minmax(0, 1.25fr);
+  padding: 34px;
+  background:
+    linear-gradient(90deg, rgba(3, 19, 38, 0.035), transparent 40%), #fff;
+}
+
+.form {
+  background: #fdfbf7;
+  border-color: #e9e1d2;
+}
+
+.form input,
+.form textarea {
+  min-height: 44px;
+  border-color: #ddd7cb;
+}
+
+.submitButton {
+  min-height: 50px;
+  background: linear-gradient(110deg, #031326, #0b2a50);
+  box-shadow: 0 10px 25px rgba(3, 19, 38, 0.18);
+}
+
+.footer {
+  min-height: 164px;
+  background:
+    radial-gradient(
+      circle at 10% 110%,
+      rgba(244, 185, 31, 0.14),
+      transparent 28%
+    ),
+    #031326;
+  border-top: 3px solid var(--gold-dark);
+}
+
+.footerSocial a {
+  color: var(--gold);
+  font-size: 16px;
+}
+
+.modalGold,
+.modalOutline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.centerPage {
+  background:
+    radial-gradient(
+      circle at 78% 22%,
+      rgba(244, 185, 31, 0.17),
+      transparent 25%
+    ),
+    linear-gradient(135deg, #031326, #0b2a50);
+}
+
+@media (max-width: 1050px) {
+  .profilePanel {
+    grid-template-columns: 180px minmax(0, 1fr) 128px;
+    gap: 24px;
+  }
+
+  .avatarWrap {
+    width: 166px;
+    height: 166px;
+  }
+
+  .businessGrid,
+  .serviceGrid,
+  .portfolioGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .page {
+    padding-bottom: calc(82px + env(safe-area-inset-bottom));
+  }
+
+  .siteHeader {
+    position: relative;
+    height: 60px;
+  }
+
+  .headerActions {
+    display: none;
+  }
+
+  .hero {
+    padding: 84px 10px 50px;
+    min-height: 520px;
+  }
+
+  .hero::before {
+    width: 430px;
+    height: 130px;
+    right: -180px;
+    bottom: -72px;
+  }
+
+  .profilePanel {
+    display: block;
+    min-height: 398px;
+    padding: 84px 14px 156px;
+    border-radius: 26px;
+  }
+
+  .profilePanel::before {
+    border-radius: 26px 26px 0 0;
+  }
+
+  .avatarWrap {
+    width: 148px;
+    height: 148px;
+    top: -75px;
+  }
+
+  .nameRow h1 {
+    font-size: clamp(28px, 9vw, 36px);
+  }
+
+  .profileInfo h2 {
+    font-size: 16px;
+  }
+
+  .contactBar {
+    left: 10px;
+    right: 10px;
+    bottom: 67px;
+    min-height: 54px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .contactAction {
+    min-height: 54px;
+    gap: 6px;
+    border-bottom: 0;
+  }
+
+  .actionBadge {
+    min-width: 28px;
+    width: 28px;
+    height: 28px;
+    font-size: 15px;
+  }
+
+  .contactAction strong {
+    font-size: 8px;
+  }
+
+  .secondaryActions {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .secondaryActions button {
+    min-height: 47px;
+    border: 1px solid #e2d5b7;
+    border-radius: 13px;
+    background: #fff;
+    color: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 9px;
+    font-weight: 900;
+  }
+
+  .content {
+    width: calc(100% - 18px);
+    margin-top: -28px;
+    gap: 10px;
+  }
+
+  .sectionCard {
+    padding: 18px;
+    border-radius: 19px;
+  }
+
+  .sectionHeading h2 {
+    font-size: 18px;
+  }
+
+  .aboutText {
+    font-size: 11px;
+  }
+
+  .businessGrid,
+  .serviceGrid,
+  .portfolioGrid,
+  .blockGrid,
+  .enquirySection {
+    grid-template-columns: 1fr;
+  }
+
+  .businessItem {
+    min-height: 68px;
+  }
+
+  .serviceCard {
+    min-height: 108px;
+  }
+
+  .socialGrid {
+    grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+  }
+
+  .socialItem {
+    min-height: 82px;
+    border: 1px solid var(--border);
+  }
+
+  .portfolioItem {
+    grid-template-columns: 112px 1fr;
+  }
+
+  .enquirySection {
+    padding: 20px;
+  }
+
+  .footer {
+    min-height: 250px;
+    padding: 30px 18px 48px;
+  }
+
+  .mobileStickyBar {
+    bottom: max(8px, env(safe-area-inset-bottom));
+    background: #031326;
+    border-color: rgba(244, 185, 31, 0.42);
+  }
+
+  .mobileStickyBar a,
+  .mobileStickyBar button {
+    font-size: 15px;
+  }
+
+  .mobileSave {
+    color: var(--navy);
+    background: #fff;
+    border: 1px solid rgba(244, 185, 31, 0.55) !important;
+  }
+
+  .toast,
+  .errorToast {
+    bottom: calc(82px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 380px) {
+  .brand small {
+    display: none;
+  }
+
+  .profilePanel {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .contactAction {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .socialGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 430px) {
   .socialGrid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1467,106 +2142,197 @@
   }
 }
 
-/* =========================================
-   YNS PREMIUM WEB - FINAL POLISH FIXES
-========================================= */
-
-/* HERO ACTION BAR
-   Force link/button text to stay white.
-   .page a has stronger specificity in the
-   base stylesheet, so this override is needed.
-*/
-.contactBar .contactAction {
-  color: #ffffff !important;
-}
-
+.contactBar .contactAction,
 .contactBar .contactAction strong {
-  color: #ffffff !important;
-  opacity: 1;
+  color: #ffffff;
 }
 
-.contactBar .whatsappAction strong {
-  color: #ffffff !important;
-}
-
-
-/* ABOUT INFORMATION
-   Automatically fill available width when
-   only 1 or 2 profile details exist.
-*/
 .aboutMeta {
-  grid-template-columns:
-    repeat(
-      auto-fit,
-      minmax(190px, 1fr)
-    );
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
 }
 
-
-/* SERVICES
-   More compact premium cards when there is
-   no long description.
-*/
 .serviceCard {
-  min-height: 125px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
 }
 
-.serviceCard h3 {
-  margin-top: 14px;
-  margin-bottom: 5px;
-}
-
-
-/* FOOTER
-   Prevent global footer/max-width rules from
-   constraining the premium YNS footer.
-*/
 .footer {
-  width: 100% !important;
-  max-width: none !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
 }
 
+/* =========================================
+   FINAL DESKTOP REFINEMENT
+========================================= */
 
-/* Slightly improve overall desktop spacing */
 @media (min-width: 761px) {
-  .content {
-    padding-top: 4px;
+  .profilePanel {
+    background:
+      linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.12),
+        rgba(255, 255, 255, 0.065)
+      ),
+      rgba(6, 27, 54, 0.56);
+    border-color: rgba(244, 185, 31, 0.56);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(18px);
   }
 
-  .sectionCard {
-    padding: 24px;
+  .nameRow h1,
+  .company {
+    color: #ffffff;
   }
 
-  .serviceGrid {
+  .profileInfo h2 {
+    color: #f4b91f;
+  }
+
+  .location,
+  .tagline {
+    color: #d9e1ec;
+  }
+
+  .profileDetailsRow {
+    order: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 15px;
     align-items: stretch;
   }
+
+  .profileDetailsRow > .sectionCard {
+    height: 100%;
+  }
+
+  .profileDetailsRow .aboutSection {
+    display: block;
+  }
+
+  .profileDetailsRow .aboutMeta {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    margin-top: 15px;
+  }
+
+  .profileDetailsRow .businessGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .enquiryIntro {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 12px 4px;
+  }
 }
 
+.content {
+  gap: 15px;
+}
 
-/* MOBILE POLISH */
+.serviceCard.serviceCompact {
+  min-height: 76px;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 13px;
+  padding: 15px 16px;
+}
+
+.serviceCompact .serviceIcon {
+  width: 38px;
+  height: 38px;
+}
+
+.serviceCompact h3 {
+  margin: 0;
+}
+
+.serviceArrow {
+  color: var(--gold-dark);
+  font-size: 16px;
+}
+
+.serviceCard.serviceWithDescription {
+  min-height: 136px;
+}
+
+.socialSection {
+  padding-top: 23px;
+  padding-bottom: 23px;
+}
+
+.socialSection .sectionHeading {
+  margin-bottom: 12px;
+}
+
+.socialGrid {
+  gap: 8px;
+}
+
+.socialItem {
+  min-height: 84px;
+  gap: 7px;
+}
+
+.enquirySection {
+  grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.2fr);
+  align-items: stretch;
+}
+
+.footer {
+  min-height: 140px;
+  padding-top: 23px;
+  padding-bottom: 30px;
+}
+
 @media (max-width: 760px) {
-  .contactBar .contactAction {
-    color: #ffffff !important;
+  .profileDetailsRow {
+    order: 1;
+    display: contents;
   }
 
-  .contactBar .contactAction strong {
-    display: block;
-    color: #ffffff !important;
-    font-size: 9px;
+  .profilePanel {
+    background: #ffffff;
+    backdrop-filter: none;
   }
 
-  .serviceCard {
-    min-height: 105px;
+  .nameRow h1,
+  .company {
+    color: var(--navy);
+  }
+
+  .profileInfo h2 {
+    color: var(--gold-dark);
+  }
+
+  .location {
+    color: var(--muted);
+  }
+
+  .tagline {
+    color: #344054;
+  }
+
+  .serviceCard.serviceCompact {
+    min-height: 70px;
+    padding: 12px 14px;
+  }
+
+  .serviceCard.serviceWithDescription {
+    min-height: 104px;
+  }
+
+  .socialSection {
+    padding-top: 17px;
+    padding-bottom: 17px;
   }
 
   .footer {
-    width: 100% !important;
-    max-width: none !important;
+    min-height: 220px;
   }
 }
-
