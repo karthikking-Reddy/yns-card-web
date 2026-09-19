@@ -2284,6 +2284,30 @@ a.businessItem:hover {
   align-items: stretch;
 }
 
+@media (max-width: 768px) {
+  .enquirySection {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .enquirySection .form,
+  .enquirySection .successCard {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .enquirySection .twoColumns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .enquirySection input,
+  .enquirySection textarea,
+  .enquirySection .submitButton {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
 .footer {
   min-height: 140px;
   padding-top: 23px;
