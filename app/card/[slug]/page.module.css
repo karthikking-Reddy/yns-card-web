@@ -91,40 +91,43 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  min-width: 210px;
+  min-width: 104px;
 }
 
-.brandMark,
-.footerMark {
-  color: var(--gold);
-  font-size: 19px;
-  font-weight: 950;
-  letter-spacing: -0.05em;
-  border: 2px solid var(--gold);
-  border-radius: 9px;
-  padding: 5px 7px;
+.brandLogoFrame,
+.footerLogoFrame,
+.stateLogoFrame {
+  display: block;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid rgba(244, 185, 31, 0.58);
+  border-radius: 12px;
+  background: #faf8f2;
 }
 
-.brand > span:last-child,
-.footerBrand > div {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+.brandLogoFrame {
+  width: 104px;
+  height: 104px;
 }
 
-.brand strong,
-.footerBrand strong {
-  color: var(--gold);
-  font-size: 15px;
-  letter-spacing: 0.08em;
+.footerLogoFrame {
+  width: 84px;
+  height: 84px;
 }
 
-.brand small,
-.footerBrand small {
-  font-size: 7px;
-  color: #c7d1df;
-  letter-spacing: 0.14em;
+.stateLogoFrame {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto;
+}
+
+.brandLogo,
+.footerLogo,
+.stateLogo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .nav {
@@ -1157,12 +1160,6 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-.errorMark {
-  color: #f6b91a;
-  font-size: 17px;
-  font-weight: 950;
-}
-
 .errorCard h1 {
   margin: 11px 0 5px;
 }
@@ -1202,19 +1199,6 @@
 
   .brand {
     min-width: 0;
-  }
-
-  .brandMark {
-    font-size: 14px;
-    padding: 4px 6px;
-  }
-
-  .brand strong {
-    font-size: 12px;
-  }
-
-  .brand small {
-    font-size: 6px;
   }
 
   .headerActions {
@@ -1500,25 +1484,12 @@
 }
 
 .siteHeader {
-  height: 72px;
+  height: 112px;
   background: rgba(3, 19, 38, 0.98);
   border-bottom-color: rgba(244, 185, 31, 0.22);
   position: sticky;
   top: 0;
   backdrop-filter: blur(16px);
-}
-
-.brandMark,
-.footerMark {
-  width: 39px;
-  height: 39px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  font-family: Georgia, serif;
-  font-size: 28px;
-  line-height: 1;
 }
 
 .headerGhostButton,
@@ -1929,7 +1900,12 @@ a.businessItem:hover {
 
   .siteHeader {
     position: relative;
-    height: 60px;
+    height: 104px;
+  }
+
+  .brandLogoFrame {
+    width: 96px;
+    height: 96px;
   }
 
   .headerActions {
@@ -2103,10 +2079,6 @@ a.businessItem:hover {
 }
 
 @media (max-width: 380px) {
-  .brand small {
-    display: none;
-  }
-
   .profilePanel {
     padding-left: 10px;
     padding-right: 10px;

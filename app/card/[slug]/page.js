@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import QRCode from "react-qr-code";
 import { supabase } from "../../../lib/supabase";
 import styles from "./page.module.css";
@@ -702,7 +703,15 @@ export default function PublicCardPage() {
     return (
       <main className={styles.centerPage}>
         <div className={styles.loader} />
-        <strong>YNS CARD</strong>
+        <span className={styles.stateLogoFrame}>
+          <Image
+            src="/brand/yns-card-logo.jpeg"
+            alt="YNS Card — Your Digital Identity"
+            width={84}
+            height={84}
+            className={styles.stateLogo}
+          />
+        </span>
         <p>Loading your digital identity...</p>
       </main>
     );
@@ -712,7 +721,15 @@ export default function PublicCardPage() {
     return (
       <main className={styles.centerPage}>
         <div className={styles.errorCard}>
-          <span className={styles.errorMark}>YNS</span>
+          <span className={styles.stateLogoFrame}>
+            <Image
+              src="/brand/yns-card-logo.jpeg"
+              alt="YNS Card — Your Digital Identity"
+              width={84}
+              height={84}
+              className={styles.stateLogo}
+            />
+          </span>
           <h1>Card unavailable</h1>
           <p>{error || "Card not found."}</p>
         </div>
@@ -734,12 +751,15 @@ export default function PublicCardPage() {
     <main className={`${styles.page} ${themeClass}`}>
       <header className={styles.siteHeader}>
         <a href="#top" className={styles.brand}>
-          <span className={styles.brandMark} aria-hidden="true">
-            ∞
-          </span>
-          <span>
-            <strong>YNS CARD</strong>
-            <small>YOUR DIGITAL IDENTITY</small>
+          <span className={styles.brandLogoFrame}>
+            <Image
+              src="/brand/yns-card-logo.jpeg"
+              alt="YNS Card — Your Digital Identity"
+              width={112}
+              height={112}
+              className={styles.brandLogo}
+              priority
+            />
           </span>
         </a>
 
@@ -1228,13 +1248,15 @@ export default function PublicCardPage() {
 
       <footer className={styles.footer}>
         <div className={styles.footerBrand}>
-          <span className={styles.footerMark} aria-hidden="true">
-            ∞
+          <span className={styles.footerLogoFrame}>
+            <Image
+              src="/brand/yns-card-logo.jpeg"
+              alt="YNS Card — Your Digital Identity"
+              width={92}
+              height={92}
+              className={styles.footerLogo}
+            />
           </span>
-          <div>
-            <strong>YNS CARD</strong>
-            <small>YOUR DIGITAL IDENTITY</small>
-          </div>
         </div>
 
         <div className={styles.footerCenter}>
